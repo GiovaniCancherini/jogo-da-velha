@@ -4,37 +4,43 @@ import axios from 'axios';
 import "./App.css";
 
 export function App() {
-  const [buttons, setButtons] = useState(Array(9).fill(null));
-  const [isXNext, setIsXNext] = useState(true);
+  const [board, setBoard] = useState(Array(9).fill(null));
+  const [status, setStatus] = useState('Next player: X');
 
   const handleClick = (index) => {
-    if (buttons[index] !== null) {
-      return;
-    }
+    const newBoard = board.slice();
+    if (newBoard[index] || status !== 'Next player: X') return;
+    newBoard[index] = 'X';
+    setBoard(newBoard);
+    evaluateBoard(newBoard);
+  };
 
-    const newButtons = buttons.slice();
-    newButtons[index] = isXNext ? "X" : "O";
-    setButtons(newButtons);
-    setIsXNext(!isXNext);
+  const evaluateBoard = async (board) => {
+    try {
+      const response = await axios.post('http://localhost:5000/evaluate', { board });
+      setStatus(response.data.status);
+    } catch (error) {
+      console.error("Houve um erro na avaliação do tabuleiro", error);
+    }
+  };
+
+  const renderCell = (index) => {
+    return (
+      <button className="gameButton" onClick={() => handleClick(index)}>
+        {board[index]}
+      </button>
+    );
   };
 
   return (
     <div className="container">
-      <h1 className="title">Jogo da velha</h1>
-
+      <div className="title">Jogo da Velha</div>
       <div className="buttonContainer">
-        {buttons.map((value, index) => (
-          <button
-            key={index}
-            className="gameButton"
-            onClick={() => handleClick(index)}
-          >
-            {value}
-          </button>
-        ))}
+        {renderCell(0)}{renderCell(1)}{renderCell(2)}
+        {renderCell(3)}{renderCell(4)}{renderCell(5)}
+        {renderCell(6)}{renderCell(7)}{renderCell(8)}
       </div>
-
-      <h2 className="gameInfo">É a vez de {isXNext ? "X" : "O"}</h2>
+      <div className="gameInfo">{status}</div>
     </div>
   );
 }

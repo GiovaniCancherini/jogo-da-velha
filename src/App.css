@@ -40,6 +40,10 @@
   transition: background-color 0.3s;
 }
 
+.gameButton:hover {
+  background-color: #7a8ba3;
+}
+
 .gameInfo {
   color: white;
   font-size: 2rem;
