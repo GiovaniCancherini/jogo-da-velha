@@ -1,0 +1,46 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  background-color: #2a2f38;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 0.25rem;
+  row-gap: 2rem;
+  height: 100vh;
+}
+
+.title {
+  font-size: 3rem;
+  color: #fff;
+}
+
+.buttonContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-column-gap: 8px;
+  grid-row-gap: 8px;
+  justify-content: center;
+}
+
+.gameButton {
+  width: 200px;
+  height: 200px;
+  font-size: 3rem;
+  cursor: pointer;
+  background-color: #566174;
+  color: #009edd;
+  border: 2px solid #232529;
+  transition: background-color 0.3s;
+}
+
+.gameInfo {
+  color: white;
+  font-size: 2rem;
+}
