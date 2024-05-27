@@ -5,20 +5,49 @@ import "./App.css";
 
 export function App() {
   const [board, setBoard] = useState(Array(9).fill(null));
-  const [status, setStatus] = useState('Next player: X');
+  const [player, setPlayer] = useState(null);
+  const [playerStatus, setPlayerStatus] = useState('Próximo Jogador é o X');
+  const [status, setStatus] = useState('Tem jogo');
 
-  const handleClick = (index) => {
+  const handleClick = async (index) => {
     const newBoard = board.slice();
-    if (newBoard[index] || status !== 'Next player: X') return;
-    newBoard[index] = 'X';
-    setBoard(newBoard);
-    evaluateBoard(newBoard);
+    if (newBoard[index] || status !== 'Tem jogo') return;
+  
+    try {
+      nextPlayer(newBoard)
+        .then(function () {
+          newBoard[index] = player;
+          setBoard(newBoard);
+          evaluateBoard(newBoard);
+        })
+        .catch (function (error) {
+          console.error("CACETE!", error);
+        });
+      
+    } catch (error) {
+      console.error("Erro ao obter o próximo jogador", error);
+    }
+  };
+  
+  const nextPlayer = async (board) => {
+    try {
+      const response = await axios.post('http://localhost:5000/next-player', { board });
+      const nextPlayer = response.data.player;
+      setPlayer(nextPlayer);
+    } catch (error) {
+      console.error("Houve um erro na avaliação do próximo jogador", error);
+    }
   };
 
   const evaluateBoard = async (board) => {
     try {
       const response = await axios.post('http://localhost:5000/evaluate', { board });
-      setStatus(response.data.status);
+      const gameStatus = response.data.status;
+      if (gameStatus === 'Tem jogo') {
+        setPlayerStatus(`Próximo Jogador é o ${player}`);
+      } else {
+        setStatus(gameStatus);
+      }
     } catch (error) {
       console.error("Houve um erro na avaliação do tabuleiro", error);
     }
@@ -40,6 +69,7 @@ export function App() {
         {renderCell(3)}{renderCell(4)}{renderCell(5)}
         {renderCell(6)}{renderCell(7)}{renderCell(8)}
       </div>
+      <div className="gameInfo">{playerStatus}</div>
       <div className="gameInfo">{status}</div>
     </div>
   );
