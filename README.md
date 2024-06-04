@@ -2,10 +2,13 @@
 
 Powered by Giovani Cancherini e Rhaduan Pacheco.
 
+Install project dependencies w/:
+
+```npm i```
 
 Start project w/:
 
-```"npm run dev"```
+```npm run dev```
 
 Game URL:
 
