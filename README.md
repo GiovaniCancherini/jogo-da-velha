@@ -7,3 +7,6 @@ Start project w/:
 
 ```"npm run dev"```
 
+Game URL:
+
+```http://localhost:5173/```
