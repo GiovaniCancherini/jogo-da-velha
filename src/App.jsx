@@ -1,76 +1,51 @@
-/* eslint-disable no-unused-vars */
-import React, { useState } from "react";
-import axios from 'axios';
-import "./App.css";
+import React, { useState } from 'react';
+import './App.css';
 
-export function App() {
-  const [board, setBoard] = useState(Array(9).fill(null));
-  const [player, setPlayer] = useState(null);
-  const [playerStatus, setPlayerStatus] = useState('Próximo Jogador é o X');
+function App() {
+  const [board, setBoard] = useState(Array(9).fill(' '));
   const [status, setStatus] = useState('Tem jogo');
+  const [currentPlayer, setCurrentPlayer] = useState('x');
 
   const handleClick = async (index) => {
     const newBoard = board.slice();
-    if (newBoard[index] || status !== 'Tem jogo') return;
-  
-    try {
-      nextPlayer(newBoard)
-        .then(function () {
-          newBoard[index] = player;
-          setBoard(newBoard);
-          evaluateBoard(newBoard);
-        })
-        .catch (function (error) {
-          console.error("CACETE!", error);
-        });
-      
-    } catch (error) {
-      console.error("Erro ao obter o próximo jogador", error);
-    }
-  };
-  
-  const nextPlayer = async (board) => {
-    try {
-      const response = await axios.post('http://localhost:5000/next-player', { board });
-      const nextPlayer = response.data.player;
-      setPlayer(nextPlayer);
-    } catch (error) {
-      console.error("Houve um erro na avaliação do próximo jogador", error);
-    }
-  };
+    if (newBoard[index] === ' ' && status === 'Tem jogo') {
+      newBoard[index] = currentPlayer;  // Jogador atual faz uma jogada
+      setBoard(newBoard);
 
-  const evaluateBoard = async (board) => {
-    try {
-      const response = await axios.post('http://localhost:5000/evaluate', { board });
-      const gameStatus = response.data.status;
-      if (gameStatus === 'Tem jogo') {
-        setPlayerStatus(`Próximo Jogador é o ${player}`);
-      } else {
-        setStatus(gameStatus);
+      const response = await fetch('http://127.0.0.1:5000/evaluate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ board: newBoard }),
+      });
+      const result = await response.json();
+      setStatus(result.status);
+
+      if (result.status === 'Tem jogo') {
+        // Alterna jogador
+        setCurrentPlayer(currentPlayer === 'x' ? 'o' : 'x');
       }
-    } catch (error) {
-      console.error("Houve um erro na avaliação do tabuleiro", error);
     }
-  };
-
-  const renderCell = (index) => {
-    return (
-      <button className="gameButton" onClick={() => handleClick(index)}>
-        {board[index]}
-      </button>
-    );
   };
 
   return (
     <div className="container">
-      <div className="title">Jogo da Velha</div>
+      <h1 className="title">Jogo da Velha</h1>
       <div className="buttonContainer">
-        {renderCell(0)}{renderCell(1)}{renderCell(2)}
-        {renderCell(3)}{renderCell(4)}{renderCell(5)}
-        {renderCell(6)}{renderCell(7)}{renderCell(8)}
+        {board.map((value, index) => (
+          <button
+            key={index}
+            className="gameButton"
+            onClick={() => handleClick(index)}
+          >
+            {value}
+          </button>
+        ))}
       </div>
-      <div className="gameInfo">{playerStatus}</div>
       <div className="gameInfo">{status}</div>
     </div>
   );
 }
+
+export default App;
